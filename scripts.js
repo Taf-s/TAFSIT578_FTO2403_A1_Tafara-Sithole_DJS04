@@ -1,3 +1,4 @@
+// Initial Data Import //
 import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
 // Initialize variables
@@ -5,21 +6,13 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 let page = 1;
 let matches = books;
 
-// Utility Functions
+// Web Components Import //
 
-/**
- * A function to set the theme colors for the document.
- *
- * @param {string} colorDark - The dark color value to set.
- * @param {string} colorLight - The light color value to set.
- */
-function setTheme(colorDark, colorLight) {
-  document.documentElement.style.setProperty("--color-dark", colorDark);
-  document.documentElement.style.setProperty("--color-light", colorLight);
-}
+import "./components/settingsoverlay.js";
 
 /**
  * Finds a book by its ID within the books array.
+ *
  *
  * @param {string} id - The ID of the book to find.
  * @return {object | null} The book object if found, else null.
@@ -302,55 +295,26 @@ showMoreButton(
   document.querySelector("[data-list-button]")
 );
 
-// Theme Functions //
-/**
- * Toggles the theme settings based on the selected theme.
- *
- * @param {Event} event - The event object.
- */
-function toggleThemeSettings(event) {
-  event.preventDefault();
-  const formData = new FormData(event.target);
-  const { theme } = Object.fromEntries(formData);
-
-  if (theme === "night") {
-    setTheme("255, 255, 255", "10, 10, 20");
-  } else {
-    setTheme("10, 10, 20", "255, 255, 255");
-  }
-
-  document.querySelector("[data-settings-overlay]").open = false;
-}
-
 // Event listeners //
 
-// Event listener for the cancel button in the data setting overlay //
-document
-  .querySelector("[data-settings-cancel]")
-  .addEventListener("click", () => {
-    document.querySelector("[data-settings-overlay]").open = false;
-  });
+// // Event listener for opening the data setting overlay //
+// document
+//   .querySelector("[data-header-settings]")
+//   .addEventListener("click", () => {
+//     document.querySelector("[data-settings-overlay]").open = true;
+//   });
 
-// Event listener for opening the data setting overlay //
-document
-  .querySelector("[data-header-settings]")
-  .addEventListener("click", () => {
-    document.querySelector("[data-settings-overlay]").open = true;
-  });
-// Event listener for closing the data setting overlay //
-document.querySelector("[data-list-close]").addEventListener("click", () => {
-  document.querySelector("[data-list-active]").open = false;
-});
+// // Event listener for closing the data setting overlay //
+// document.querySelector("[data-list-close]").addEventListener("click", () => {
+//   document.querySelector("[data-list-active]").open = false;
+// });
+
+// customElements.define("settings-overlay", SettingsOverlay);
 
 // Event Listener for Previewing Books//
 document
   .querySelector("[data-list-items]")
   .addEventListener("click", previewBook);
-
-// Event Listener for toggling Theme Settings//
-document
-  .querySelector("[data-settings-form]")
-  .addEventListener("submit", toggleThemeSettings);
 
 // Initial Render
 renderBookPreview(books, authors, "[data-list-items]", BOOKS_PER_PAGE);
