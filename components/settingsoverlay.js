@@ -41,12 +41,6 @@ class SettingsOverlay extends HTMLElement {
       .addEventListener("click", () => {
         this.shadowRoot.querySelector("[data-settings-overlay]").open = true;
       });
-    // Event listener for closing the data setting overlay
-    document
-      .querySelector("[data-list-close]")
-      .addEventListener("click", () => {
-        document.querySelector("[data-list-active]").open = false;
-      });
   }
 
   toggleThemeSettings(event) {
@@ -70,5 +64,3 @@ class SettingsOverlay extends HTMLElement {
 }
 
 customElements.define("settings-overlay", SettingsOverlay);
-
-export { SettingsOverlay };
