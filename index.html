@@ -34,6 +34,9 @@
   <!-- Added the defer attrubute to improve the page loading performance by allowing the script to be downloaded in the background until the HTML parsing is complete -->
   <script type="module" src="./scripts.js" defer></script>
   <script type="module" src="./data.js" defer></script>
+  <script src="components/settingsoverlay.js"></script>
+  <script src="components/searchoverlay.js"></script>
+  <script src="components/previewoverlay.js"></script>
 </head>
 
 <body>
@@ -94,15 +97,16 @@
   </main>
 
   <!-- Preview Overlay -->
+
   <preview-overlay></preview-overlay>
 
   <!-- Search Overlay and Form Submition -->
-  <script src="components/searchoverlay.js"></script>
+
   <search-overlay></search-overlay>
 
 
   <!-- Settings Overlay-->
-  <script src="components/settingsoverlay.js"></script>
+
   <settings-overlay></settings-overlay>
 
   <div class="backdrop"></div>

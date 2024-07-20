@@ -1,83 +1,94 @@
+import { genres } from "/data.js";
 class SearchOverlay extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.render();
+    this.shadowRoot.innerHTML = `
+        <link rel="stylesheet" href="./styles.css" />
+      <dialog class="overlay" data-search-overlay>
+    <div class="overlay__content">
+      <form class="overlay__form" data-search-form id="search">
+        <label class="overlay__field">
+          <div class="overlay__label">Title</div>
+          <input class="overlay__input" data-search-title name="title"
+            placeholder="Any"></input>
+        </label>
+
+        <label class="overlay__field">
+          <div class="overlay__label">Genre</div>
+          <select class="overlay__input overlay__input_select"
+            data-search-genres name="genre"></select>
+        </label>
+
+        <label class="overlay__field">
+          <div class="overlay__label">Author</div>
+          <select class="overlay__input overlay__input_select"
+            data-search-authors name="author">
+          </select>
+        </label>
+      </form>
+
+      <div class="overlay__row">
+        <button class="overlay__button" data-search-cancel>Cancel</button>
+        <button class="overlay__button overlay__button_primary" type="submit"
+          form="search">Search</button>
+      </div>
+    </div>
+  </dialog>
+      `;
   }
 
-  render() {
-    const template = document.createElement("template");
-    template.innerHTML = `
-        <link rel="stylesheet" href="./styles.css" />
-        <dialog class="overlay" data-search-overlay>
-          <div class="overlay__content">
-            <form class="overlay__form" data-search-form id="search">
-              <label class="overlay__field">
-                <div class="overlay__label">Title</div>
-                <input class="overlay__input" data-search-title name="title" placeholder="Any"></input>
-              </label>
-  
-              <label class="overlay__field">
-                <div class="overlay__label">Genre</div>
-                <select class="overlay__input overlay__input_select" data-search-genres name="genre"></select>
-              </label>
-  
-              <label class="overlay__field">
-                <div class="overlay__label">Author</div>
-                <select class="overlay__input overlay__input_select" data-search-authors name="author"></select>
-              </label>
-            </form>
-  
-            <div class="overlay__row">
-              <button class="overlay__button" data-search-cancel>Cancel</button>
-              <button class="overlay__button overlay__button_primary" type="submit" form="search">Search</button>
-            </div>
-          </div>
-        </dialog>
-      `;
-
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-    this.shadowRoot
-      .querySelector("[data-search-form]")
-      .addEventListener("submit", this.searchFormSubmit.bind(this));
-
-    this.shadowRoot
-      .querySelector("[data-search-cancel]")
-      .addEventListener("click", () => {
-        this.shadowRoot.host.open = false;
-      });
-
+  set data({ authors, genres, books }) {
+    this.authors = authors;
+    this.genres = genres;
+    this.books = books;
     this.populateGenresAndAuthors();
+  }
+
+  connectedCallback() {
+    this.addEventListeners();
+  }
+
+  addEventListeners() {
+    const overlay = this.shadowRoot.querySelector("[data-search-overlay]");
+    const headerSearchButton = document.querySelector("[data-header-search]");
+    const cancelButton = this.shadowRoot.querySelector("[data-search-cancel]");
+    const searchForm = this.shadowRoot.querySelector("[data-search-form]");
+
+    headerSearchButton?.addEventListener("click", () => {
+      overlay.showModal();
+      overlay.querySelector("[data-search-title]").focus();
+    });
+
+    cancelButton.addEventListener("click", () => {
+      overlay.close();
+    });
+
+    searchForm.addEventListener("submit", (event) => {
+      this.searchFormSubmit(event);
+    });
   }
 
   populateGenresAndAuthors() {
     const genreSelect = this.shadowRoot.querySelector("[data-search-genres]");
     const authorSelect = this.shadowRoot.querySelector("[data-search-authors]");
 
-    if (!genres || !authors) {
+    if (!this.genres || !this.authors) {
       console.error("Genres or authors data is missing.");
       return;
     }
 
-    const firstGenreOption = document.createElement("option");
-    firstGenreOption.value = "any";
-    firstGenreOption.innerText = "All Genres";
-    genreSelect.appendChild(firstGenreOption);
+    genreSelect.innerHTML = '<option value="any">All Genres</option>';
+    authorSelect.innerHTML = '<option value="any">All Authors</option>';
 
-    for (const [id, name] of Object.entries(genres)) {
+    for (const [id, name] of Object.entries(this.genres)) {
       const option = document.createElement("option");
       option.value = id;
       option.innerText = name;
       genreSelect.appendChild(option);
     }
 
-    const firstAuthorOption = document.createElement("option");
-    firstAuthorOption.value = "any";
-    firstAuthorOption.innerText = "All Authors";
-    authorSelect.appendChild(firstAuthorOption);
-
-    for (const [id, name] of Object.entries(authors)) {
+    for (const [id, name] of Object.entries(this.authors)) {
       const option = document.createElement("option");
       option.value = id;
       option.innerText = name;
@@ -89,54 +100,81 @@ class SearchOverlay extends HTMLElement {
     event.preventDefault();
     const formData = new FormData(event.target);
     const filters = Object.fromEntries(formData);
-
     const result = [];
 
     function applyFilters(book, filters) {
-      if (!book || !book.genres) return false;
+      let genreMatch = filters.genre === "any";
 
-      const genreMatch =
-        filters.genre === "any" || book.genres.includes(filters.genre);
+      for (const singleGenre of book.genres) {
+        if (genreMatch) break;
+        if (singleGenre === filters.genre) {
+          genreMatch = true;
+        }
+      }
 
-      return (
+      if (
         (filters.title.trim() === "" ||
           book.title.toLowerCase().includes(filters.title.toLowerCase())) &&
         (filters.author === "any" || book.author === filters.author) &&
         genreMatch
-      );
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     }
 
-    if (!books) {
-      console.error("Books data is missing.");
-      return;
-    }
-
-    for (const book of books) {
+    for (const book of this.books) {
       if (applyFilters(book, filters)) {
         result.push(book);
       }
     }
 
-    page = 1;
-    matches = result;
+    this.page = 1;
+    this.matches = result;
 
-    const listMessage = document.querySelector("[data-list-message]");
-    if (listMessage) {
-      listMessage.classList.toggle("list__message_show", result.length < 1);
-    }
+    const listMessage = this.shadowRoot.querySelector("[data-list-message]");
+    listMessage.classList.toggle("list__message_show", result.length < 1);
 
-    document.querySelector("[data-list-items]").innerHTML = "";
+    const listItems = this.shadowRoot.querySelector(".list__items");
+    listItems.innerHTML = "";
+
+    this.renderBooks(result.slice(0, this.BOOKS_PER_PAGE));
 
     showMoreButton(
-      books,
-      page,
-      matches,
-      BOOKS_PER_PAGE,
-      document.querySelector("[data-list-button]")
+      this.books,
+      this.page,
+      this.matches,
+      this.BOOKS_PER_PAGE,
+      this.shadowRoot.querySelector("[data-list-button]")
     );
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-    this.shadowRoot.host.open = false;
+  }
+
+  renderBooks(books) {
+    const listItemsContainer = this.shadowRoot.querySelector(".list__items");
+
+    const fragment = document.createDocumentFragment();
+    books.forEach((book) => {
+      const element = this.createBookElement(book);
+      fragment.appendChild(element);
+    });
+
+    listItemsContainer.appendChild(fragment);
+  }
+
+  createBookElement(book) {
+    const element = document.createElement("div");
+    element.classList.add("book");
+    element.innerHTML = `
+        <img src="${book.image}" alt="${book.title}" />
+        <div class="book-info">
+          <h3>${book.title}</h3>
+          <p>${this.authors[book.author]}</p>
+        </div>
+      `;
+    return element;
   }
 }
 
