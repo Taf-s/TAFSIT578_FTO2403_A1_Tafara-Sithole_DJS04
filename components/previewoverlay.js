@@ -29,6 +29,14 @@ class PreviewOverlay extends HTMLElement {
     `;
   }
 
+  /**
+   * Sets the data for the component.
+   *
+   * @param {Object} data - An object containing the books and authors.
+   * @param {Array} data.books - An array of books.
+   * @param {Array} data.authors - An array of authors.
+   * @return {void}
+   */
   set data({ books, authors }) {
     this.books = books;
     this.authors = authors;
@@ -41,6 +49,12 @@ class PreviewOverlay extends HTMLElement {
     this.addEventListeners();
   }
 
+  /**
+   * Add event listeners to the container, close button, and list button.
+   *
+   * @param {type} paramName - description of parameter
+   * @return {type} description of return value
+   */
   addEventListeners() {
     const container = this.shadowRoot.querySelector(".list__items");
     const closeButton = this.shadowRoot.querySelector("[data-list-close]");
@@ -59,6 +73,10 @@ class PreviewOverlay extends HTMLElement {
     });
   }
 
+  /**
+   * Renders book previews based on the available books within the specified limit.
+   *
+   */
   renderBookPreviews() {
     const container = this.shadowRoot.querySelector(".list__items");
     if (!container) return;
@@ -74,6 +92,15 @@ class PreviewOverlay extends HTMLElement {
     this.updateShowMoreButton();
   }
 
+  /**
+   * Creates a book preview element with the specified author, id, image, and title.
+   *
+   * @param {Object} author - The author of the book.
+   * @param {string} id - The ID of the book.
+   * @param {string} image - The image URL of the book.
+   * @param {string} title - The title of the book.
+   * @return {HTMLElement} The created book preview element.
+   */
   createBookPreview({ author, id, image, title }) {
     const element = document.createElement("button");
     element.classList.add("preview");
@@ -88,6 +115,12 @@ class PreviewOverlay extends HTMLElement {
     return element;
   }
 
+  /**
+   * Handles the preview of a book when the corresponding button is clicked.
+   *
+   * @param {Event} event - The click event triggered by the button.
+   * @return {void} This function does not return anything.
+   */
   previewBook(event) {
     const button = event.target.closest(".preview");
     if (button) {
@@ -99,6 +132,11 @@ class PreviewOverlay extends HTMLElement {
     }
   }
 
+  /**
+   * Updates the overlay with the details of the provided book.
+   *
+   * @param {Object} book - The book object containing information to display.
+   */
   show(book) {
     const overlay = this.shadowRoot.querySelector("[data-list-active]");
     overlay.open = true;
@@ -120,6 +158,11 @@ class PreviewOverlay extends HTMLElement {
     return this.books.find((book) => book.id === id) || null;
   }
 
+  /**
+   * Updates the show more button by creating book previews and appending them to the list items.
+   *
+   * @return {void}
+   */
   updateShowMoreButton() {
     const fragment = document.createDocumentFragment();
     const booksToShow = this.matches.slice(

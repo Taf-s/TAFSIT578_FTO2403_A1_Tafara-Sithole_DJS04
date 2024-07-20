@@ -38,6 +38,12 @@ class SearchOverlay extends HTMLElement {
       `;
   }
 
+  /**
+   * Sets the data for the component.
+   *
+   * @param {Object} data - The data object containing authors, genres, and books.
+   * @return {void}
+   */
   set data({ authors, genres, books }) {
     this.authors = authors;
     this.genres = genres;
@@ -45,10 +51,19 @@ class SearchOverlay extends HTMLElement {
     this.populateGenresAndAuthors();
   }
 
+  /**
+   * Called when the custom element is inserted into a document.
+   * Initializes the event listeners for the component.
+   *
+   * @return {void}
+   */
   connectedCallback() {
     this.addEventListeners();
   }
 
+  /**
+   * Adds event listeners to handle search overlay functionality.
+   */
   addEventListeners() {
     const overlay = this.shadowRoot.querySelector("[data-search-overlay]");
     const headerSearchButton = document.querySelector("[data-header-search]");
@@ -69,6 +84,10 @@ class SearchOverlay extends HTMLElement {
     });
   }
 
+  /**
+   * Populates the genre and author select elements with data.
+   *
+   */
   populateGenresAndAuthors() {
     const genreSelect = this.shadowRoot.querySelector("[data-search-genres]");
     const authorSelect = this.shadowRoot.querySelector("[data-search-authors]");
@@ -96,6 +115,12 @@ class SearchOverlay extends HTMLElement {
     }
   }
 
+  /**
+   * Handles the form submission for searching books based on filters.
+   *
+   * @param {Event} event - The event object representing the form submission.
+   * @return {void} This function does not return a value.
+   */
   searchFormSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -152,6 +177,11 @@ class SearchOverlay extends HTMLElement {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  /**
+   * Renders the list of books on the page.
+   *
+   * @param {Array} books - The array of books to be rendered.
+   */
   renderBooks(books) {
     const listItemsContainer = this.shadowRoot.querySelector(".list__items");
 
@@ -164,6 +194,12 @@ class SearchOverlay extends HTMLElement {
     listItemsContainer.appendChild(fragment);
   }
 
+  /**
+   * Creates a book element with the provided book information.
+   *
+   * @param {Object} book - The book object containing the image, title, and author.
+   * @return {HTMLElement} The created book element.
+   */
   createBookElement(book) {
     const element = document.createElement("div");
     element.classList.add("book");

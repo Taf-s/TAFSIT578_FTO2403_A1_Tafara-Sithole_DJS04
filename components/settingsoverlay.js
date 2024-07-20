@@ -43,6 +43,12 @@ class SettingsOverlay extends HTMLElement {
       });
   }
 
+  /**
+   * A function to toggle the theme settings based on the selected theme.
+   *
+   * @param {Event} event - The event triggering the theme toggle.
+   * @return {void} No return value.
+   */
   toggleThemeSettings(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
